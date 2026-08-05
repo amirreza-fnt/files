@@ -5,7 +5,9 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-Type=notify
+# simple (not notify): the app blocks at boot while Hangfire talks to the remote
+# MSSQL, so there is no reliable sd_notify READY signal -> systemd would time out.
+Type=simple
 WorkingDirectory=/opt/filestorage
 # Development mode for now so Swagger is reachable; switch to Production later.
 Environment=ASPNETCORE_ENVIRONMENT=Development
