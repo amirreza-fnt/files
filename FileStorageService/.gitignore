@@ -1,0 +1,27 @@
+# Build results
+bin/
+obj/
+*.user
+*.suo
+
+# Publish output
+publish/
+out/
+
+# Local settings
+appsettings.Local.json
+appsettings.Production.json
+.env
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Test artifacts
+TestResults/
+*.coverage
+
+# OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{778F045B-7375-4422-B75E-EE2ABAB905EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorage.UnitTests", "tests\FileStorage.UnitTests\FileStorage.UnitTests.csproj", "{83B01B5D-97E6-49C2-9493-BDED064D8176}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorage.IntegrationTests", "tests\FileStorage.IntegrationTests\FileStorage.IntegrationTests.csproj", "{FD3CA8EE-82FD-432E-A3AE-C71FDBEA4CDB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{83B01B5D-97E6-49C2-9493-BDED064D8176}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83B01B5D-97E6-49C2-9493-BDED064D8176}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83B01B5D-97E6-49C2-9493-BDED064D8176}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83B01B5D-97E6-49C2-9493-BDED064D8176}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD3CA8EE-82FD-432E-A3AE-C71FDBEA4CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD3CA8EE-82FD-432E-A3AE-C71FDBEA4CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD3CA8EE-82FD-432E-A3AE-C71FDBEA4CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD3CA8EE-82FD-432E-A3AE-C71FDBEA4CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{83B01B5D-97E6-49C2-9493-BDED064D8176} = {778F045B-7375-4422-B75E-EE2ABAB905EC}
+		{FD3CA8EE-82FD-432E-A3AE-C71FDBEA4CDB} = {778F045B-7375-4422-B75E-EE2ABAB905EC}
+	EndGlobalSection
+EndGlobal

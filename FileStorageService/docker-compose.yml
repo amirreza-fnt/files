@@ -1,0 +1,51 @@
+# Development / staging environment.
+#   - Redis + App (both containers)
+#   - MSSQL is NOT containerized: it lives on the separate Windows server.
+#     Point the connection string at it via the environment below.
+#
+# Usage:
+#   docker compose up --build
+#
+# Connect to your remote MSSQL by editing FILE_STORAGE_CONNECTION.
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: filestorage-valkey
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: filestorage-app
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:6000
+      # Remote MSSQL on the Windows/separate host:
+      ConnectionStrings__FileStorage: "Server=185.255.91.242,2019;Database=apiwebfilestorage;User Id=apiwebfilestorageuser;Password=54#4Fghkp0&g1;Encrypt=True;TrustServerCertificate=True;Connection Timeout=15;Pooling=true;Max Pool Size=100;"
+      Valkey__ConnectionString: "redis:6379"
+      Storage__RootPath: "/var/lib/filestorage"
+      Jwt__Key: "dev-secret-change-me"
+    ports:
+      - "6000:6000"
+    volumes:
+      - file-storage:/var/lib/filestorage
+
+volumes:
+  redis-data:
+  file-storage:
