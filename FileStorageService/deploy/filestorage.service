@@ -12,7 +12,8 @@ Environment=ASPNETCORE_ENVIRONMENT=Development
 # Service listens on port 6000
 Environment=ASPNETCORE_URLS=http://127.0.0.1:6000
 # Remote MSSQL connection string (server IP:port) - maps to ConnectionStrings:FileStorage
-Environment=ConnectionStrings__FileStorage=Server=185.255.91.242,2019;Database=apiwebfilestorage;User Id=apiwebfilestorageuser;Password=54#4Fghkp0&g1;Encrypt=True;TrustServerCertificate=True;Connection Timeout=15;Connect Retry Count=3;Pooling=true;Max Pool Size=200;
+# NOTE: value contains spaces/;/# so it MUST be double-quoted for systemd to parse it correctly.
+Environment=ConnectionStrings__FileStorage="Server=185.255.91.242,2019;Database=apiwebfilestorage;User Id=apiwebfilestorageuser;Password=54#4Fghkp0&g1;Encrypt=True;TrustServerCertificate=True;Connection Timeout=15;Connect Retry Count=3;Pooling=true;Max Pool Size=200;"
 # Valkey connection (Redis-compatible) - maps to Valkey:ConnectionString
 Environment=Valkey__ConnectionString=localhost:6379
 # Production logging goes to journald + /var/log/filestorage
