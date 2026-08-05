@@ -104,6 +104,14 @@ try
     // Schedules the nightly purge job without blocking startup (DB may be briefly down).
     builder.Services.AddHostedService<FileStorage.Infrastructure.Hangfire.RecurringJobScheduler>();
 
+    // Transient failures in background services (e.g. a brief MSSQL/Valkey outage at
+    // boot) must NOT crash the whole host. The app uses cache-aside and degrades
+    // gracefully, so keep the web service alive even if a job fails to schedule.
+    builder.Services.Configure<HostOptions>(options =>
+    {
+        options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+    });
+
     // ---------- Server limits (Kestrel) ----------
     builder.WebHost.ConfigureKestrel(options =>
     {
