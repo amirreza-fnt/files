@@ -37,7 +37,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:6000
       # Remote MSSQL on the Windows/separate host:
-      ConnectionStrings__FileStorage: "Server=185.255.91.242,2019;Database=apiwebfilestorage;User Id=apiwebfilestorageuser;Password=54#4Fghkp0&g1;Encrypt=True;TrustServerCertificate=True;Connection Timeout=15;Pooling=true;Max Pool Size=100;"
+      ConnectionStrings__FileStorage: "Server=185.255.91.242,2019;Database=apiweb-filestorage;User Id=apiwebfilestorageuser;Password=54#4Fghkp0&g1;Encrypt=True;TrustServerCertificate=True;Connection Timeout=15;Pooling=true;Max Pool Size=100;"
       Valkey__ConnectionString: "redis:6379"
       Storage__RootPath: "/var/lib/filestorage"
       Jwt__Key: "dev-secret-change-me"
