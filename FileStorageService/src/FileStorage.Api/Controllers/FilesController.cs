@@ -2,10 +2,12 @@ namespace FileStorage.Api.Controllers;
 
 using FileStorage.Application.Dtos;
 using FileStorage.Application.Interfaces;
+using FileStorage.Application.Options;
 using FileStorage.Application.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 /// <summary>Authenticated management endpoints: two-step upload, delete, info, temp links.</summary>
 [ApiController]
@@ -18,6 +20,7 @@ public sealed class FilesController : ControllerBase
     private readonly ICurrentUserAccessor _currentUser;
     private readonly ITempLinkStore _tempLinkStore;
     private readonly IValidator<PrepareUploadRequest> _prepareValidator;
+    private readonly IOptions<InternalAuthOptions> _internalAuth;
 
     public FilesController(
         IFileUploadService uploadService,
@@ -25,7 +28,8 @@ public sealed class FilesController : ControllerBase
         IFileReadService readService,
         ICurrentUserAccessor currentUser,
         ITempLinkStore tempLinkStore,
-        IValidator<PrepareUploadRequest> prepareValidator)
+        IValidator<PrepareUploadRequest> prepareValidator,
+        IOptions<InternalAuthOptions> internalAuth)
     {
         _uploadService = uploadService;
         _deleteService = deleteService;
@@ -33,6 +37,7 @@ public sealed class FilesController : ControllerBase
         _currentUser = currentUser;
         _tempLinkStore = tempLinkStore;
         _prepareValidator = prepareValidator;
+        _internalAuth = internalAuth;
     }
 
     /// <summary>POST /api/files/prepare-upload — step 1: request an upload token.</summary>
@@ -79,23 +84,56 @@ public sealed class FilesController : ControllerBase
         return deleted ? NoContent() : Forbid();
     }
 
-    /// <summary>GET /api/files/{id} — file info for the admin panel.</summary>
+    /// <summary>
+    /// GET /api/files/{id} — file metadata.
+    /// Auth: JWT (owner or Admin) OR valid X-Api-Key for sibling microservices.
+    /// </summary>
     [HttpGet("{id:guid}")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<ActionResult<FileInfoResponse>> GetInfo(Guid id, CancellationToken cancellationToken)
     {
+        var serviceCaller = IsValidServiceKey();
+        var jwtAuthenticated = User.Identity?.IsAuthenticated == true;
+
+        if (!serviceCaller && !jwtAuthenticated)
+        {
+            return Unauthorized();
+        }
+
         var info = await _readService.GetInfoAsync(id, cancellationToken);
         if (info is null)
         {
             return NotFound();
         }
 
-        if (!_currentUser.IsAdmin && info.OwnerUserId != _currentUser.UserId)
+        if (!serviceCaller && !_currentUser.IsAdmin && info.OwnerUserId != _currentUser.UserId)
         {
             return Forbid();
         }
 
         return Ok(info);
+    }
+
+    private bool IsValidServiceKey()
+    {
+        var headerName = string.IsNullOrWhiteSpace(_internalAuth.Value.HeaderName)
+            ? "X-Api-Key"
+            : _internalAuth.Value.HeaderName;
+
+        if (!Request.Headers.TryGetValue(headerName, out var values))
+        {
+            return false;
+        }
+
+        var key = values.ToString()?.Trim();
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return false;
+        }
+
+        return _internalAuth.Value.ApiKeys.Any(k =>
+            !string.IsNullOrEmpty(k.Key)
+            && k.Key.Equals(key, StringComparison.Ordinal));
     }
 
     /// <summary>POST /api/files/{id}/temp-link — create a Redis TTL backed temporary link.</summary>

@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.Configure<CacheOptions>(configuration.GetSection(CacheOptions.SectionName));
         services.Configure<DeleteOptions>(configuration.GetSection(DeleteOptions.SectionName));
         services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
+        services.Configure<InternalAuthOptions>(configuration.GetSection(InternalAuthOptions.SectionName));
 
         // Cache store (Redis-compatible). The server uses Valkey (a drop-in Redis fork),
         // so we prefer the "Valkey" section and fall back to "Redis" when absent.
