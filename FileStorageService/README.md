@@ -294,19 +294,43 @@ dotnet run --project src/FileStorage.Api --urls "http://0.0.0.0:6000"
 
 ### Migrations
 
-Migration اولیه (`InitialCreate`) از قبل موجود است. اعمال روی دیتابیس:
+Migrationها داخل پروژه هستند و **با استارت سرویس به‌صورت خودکار** (`Database.Migrate()`) روی MSSQL اعمال می‌شوند — نیازی به اجرای دستی SQL نیست.
+
+برای توسعه محلی (اختیاری):
 
 ```bash
-dotnet tool install --global dotnet-ef --version 8.0.11
-export FILE_STORAGE_CONNECTION="Server=185.255.91.242,2019;Database=apiwebfilestorage;User Id=apiwebfilestorageuser;Password=54#4Fghkp0&g1;Encrypt=True;TrustServerCertificate=True;Connection Timeout=15;"
 dotnet ef database update --project src/FileStorage.Infrastructure --startup-project src/FileStorage.Api
 ```
 
-یا SQL خروجی بگیرید و روی دیتابیس اجرا کنید:
-```bash
-dotnet ef migrations script --project src/FileStorage.Infrastructure --startup-project src/FileStorage.Api
+---
+
+## Deploy فقط با Git Push (سرور بدون دسترسی به بیرون)
+
+شما از بیرون فقط **push** می‌کنید. سرور از ریپوی داخلی/میرور `git pull` می‌گیرد (شبکه داخلی، بدون اینترنت).
+
+### کار شما (روی ویندوز)
+
+```powershell
+cd "D:\project\arman asrar\files"
+git add .
+git commit -m "your message"
+git push origin publish-release
 ```
-> نکته: خروجی Script برای SQL Server است (rowversion، دیتاتایپ‌ها و...).
+
+### کار سرور (یک‌بار توسط ادمین شبکه — یا اسکریپت خودکار بعد از pull)
+
+```bash
+cd /path/to/files/FileStorageService
+git pull origin publish-release
+bash deploy/update.sh
+```
+
+اسکریپت `deploy/update.sh` این کارها را می‌کند:
+1. `dotnet publish` به `/opt/filestorage`
+2. `systemctl restart filestorage`
+3. **Migration خودکار** هنگام بالا آمدن سرویس (ستون‌های `Title` و `Description` و...)
+
+> اگر webhook یا CI داخلی دارید، فقط `git pull` + `bash deploy/update.sh` را بعد از هر push صدا بزنید.
 
 ---
 

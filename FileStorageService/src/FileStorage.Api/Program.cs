@@ -6,9 +6,11 @@ using FileStorage.Application.Options;
 using FileStorage.Infrastructure;
 using FileStorage.Infrastructure.Hangfire;
 using FileStorage.Infrastructure.Options;
+using FileStorage.Infrastructure.Persistence;
 using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -104,14 +106,6 @@ try
     // Schedules the nightly purge job without blocking startup (DB may be briefly down).
     builder.Services.AddHostedService<FileStorage.Infrastructure.Hangfire.RecurringJobScheduler>();
 
-    // Transient failures in background services (e.g. a brief MSSQL/Valkey outage at
-    // boot) must NOT crash the whole host. The app uses cache-aside and degrades
-    // gracefully, so keep the web service alive even if a job fails to schedule.
-    builder.Services.Configure<HostOptions>(options =>
-    {
-        options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
-    });
-
     // ---------- Server limits (Kestrel) ----------
     builder.WebHost.ConfigureKestrel(options =>
     {
@@ -122,6 +116,14 @@ try
         o.MultipartBodyLengthLimit = 1L * 1024 * 1024 * 1024);
 
     var app = builder.Build();
+
+    // Apply pending EF migrations automatically (no manual SQL on deploy).
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<FileStorageDbContext>();
+        db.Database.Migrate();
+        Log.Information("Database migrations applied.");
+    }
 
     app.UseForwardedHeaders(new ForwardedHeadersOptions
     {
