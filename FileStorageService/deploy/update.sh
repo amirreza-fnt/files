@@ -1,22 +1,30 @@
 #!/usr/bin/env bash
-# Run on the AlmaLinux server after "git pull" (internal mirror / offline deploy).
-# Applies code + restarts the service; EF migrations run automatically on startup.
+# Deploy script for AlmaLinux server.
+# Repo path : /root/files/FileStorageService
+# App path  : /opt/filestorage
+# Usage     : cd /root/files/FileStorageService && git pull && bash deploy/update.sh
 set -euo pipefail
 
+REPO_DIR="/root/files/FileStorageService"
 APP_DIR="/opt/filestorage"
-REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SERVICE="filestorage"
 
-echo "==> Publishing to ${APP_DIR}"
+cd "${REPO_DIR}"
+
+echo "==> Stopping ${SERVICE}"
+systemctl stop "${SERVICE}"
+
+echo "==> Publishing Release build to ${APP_DIR}"
 dotnet publish "${REPO_DIR}/src/FileStorage.Api" -c Release -o "${APP_DIR}"
 
 echo "==> Fixing permissions"
 chown -R filestorage:filestorage "${APP_DIR}" /var/lib/filestorage /var/log/filestorage
 
-echo "==> Restarting service"
-systemctl restart filestorage
-systemctl status filestorage --no-pager
+echo "==> Starting ${SERVICE} (EF migrations run automatically on startup)"
+systemctl start "${SERVICE}"
+systemctl status "${SERVICE}" --no-pager
 
 echo "==> Health check"
 curl -fsS http://127.0.0.1:6000/api/health
 echo
-echo "Done."
+echo "Deploy done."

@@ -304,11 +304,16 @@ dotnet ef database update --project src/FileStorage.Infrastructure --startup-pro
 
 ---
 
-## Deploy فقط با Git Push (سرور بدون دسترسی به بیرون)
+## Deploy (همان روال قبلی — Push از ویندوز، Pull روی سرور)
 
-شما از بیرون فقط **push** می‌کنید. سرور از ریپوی داخلی/میرور `git pull` می‌گیرد (شبکه داخلی، بدون اینترنت).
+### ساختار سرور
 
-### کار شما (روی ویندوز)
+| مسیر | نقش |
+|---|---|
+| `/root/files/FileStorageService` | ریپوی git (همان‌جا `git pull`) |
+| `/opt/filestorage` | فایل‌های publish شده (سرویس از اینجا اجرا می‌شود) |
+
+### ۱) روی ویندوز — فقط Push
 
 ```powershell
 cd "D:\project\arman asrar\files"
@@ -317,20 +322,27 @@ git commit -m "your message"
 git push origin publish-release
 ```
 
-### کار سرور (یک‌بار توسط ادمین شبکه — یا اسکریپت خودکار بعد از pull)
+### ۲) روی AlmaLinux — Pull و Deploy
 
 ```bash
-cd /path/to/files/FileStorageService
+cd /root/files/FileStorageService
 git pull origin publish-release
 bash deploy/update.sh
 ```
 
-اسکریپت `deploy/update.sh` این کارها را می‌کند:
-1. `dotnet publish` به `/opt/filestorage`
-2. `systemctl restart filestorage`
-3. **Migration خودکار** هنگام بالا آمدن سرویس (ستون‌های `Title` و `Description` و...)
+اسکریپت `deploy/update.sh` به ترتیب:
+1. `systemctl stop filestorage`
+2. `dotnet publish` به `/opt/filestorage`
+3. `chown` برای کاربر `filestorage`
+4. `systemctl start filestorage`
+5. Migration دیتابیس **خودکار** هنگام استارت (بدون SQL دستی)
+6. `curl` health check
 
-> اگر webhook یا CI داخلی دارید، فقط `git pull` + `bash deploy/update.sh` را بعد از هر push صدا بزنید.
+### دستور یک‌خطی (کپی/پیست)
+
+```bash
+cd /root/files/FileStorageService && git pull origin publish-release && bash deploy/update.sh
+```
 
 ---
 
