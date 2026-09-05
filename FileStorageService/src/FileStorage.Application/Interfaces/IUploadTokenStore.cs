@@ -6,6 +6,8 @@ using FileStorage.Domain.Enums;
 /// <summary>Payload carried by a prepare-upload token (Redis, short TTL).</summary>
 public sealed record UploadTokenPayload(
     string FileName,
+    string Title,
+    string? Description,
     long SizeBytes,
     AccessType AccessType,
     Guid? GroupId,

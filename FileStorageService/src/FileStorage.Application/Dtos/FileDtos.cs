@@ -5,8 +5,10 @@ using FileStorage.Domain.Enums;
 /// <summary>Step 1 of the two-step upload: request metadata before any bytes flow.</summary>
 public sealed record PrepareUploadRequest(
     string FileName,
+    string Title,
     long SizeBytes,
     AccessType AccessType,
+    string? Description = null,
     Guid? GroupId = null);
 
 public sealed record PrepareUploadResponse(
@@ -19,6 +21,8 @@ public sealed record UploadResponse(
     Guid FileId,
     string ShortCode,
     string FriendlyName,
+    string Title,
+    string? Description,
     string Url,
     string OriginalFileName,
     long SizeBytes);
@@ -27,6 +31,8 @@ public sealed record FileInfoResponse(
     Guid Id,
     string ShortCode,
     string FriendlyName,
+    string Title,
+    string? Description,
     string OriginalFileName,
     string Extension,
     string MimeType,
@@ -61,6 +67,8 @@ public sealed record CachedFileMeta(
     Guid Id,
     string ShortCode,
     string FriendlyName,
+    string Title,
+    string? Description,
     string OriginalFileName,
     string Extension,
     string MimeType,

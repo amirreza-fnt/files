@@ -165,6 +165,8 @@ public sealed class FileReadService : IFileReadService
             meta.Id,
             meta.ShortCode,
             meta.FriendlyName,
+            meta.Title,
+            meta.Description,
             meta.OriginalFileName,
             meta.Extension,
             meta.MimeType,

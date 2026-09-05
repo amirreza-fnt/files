@@ -45,7 +45,7 @@ public class FileUploadServiceTests
     public async Task PrepareUpload_RejectsDisallowedExtension()
     {
         var sut = Build();
-        var request = new PrepareUploadRequest("evil.exe", 100, AccessType.Public);
+        var request = new PrepareUploadRequest("evil.exe", "Test file", 100, AccessType.Public);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => sut.PrepareUploadAsync(request));
     }
@@ -54,7 +54,7 @@ public class FileUploadServiceTests
     public async Task PrepareUpload_RejectsOversizeFile()
     {
         var sut = Build();
-        var request = new PrepareUploadRequest("big.png", 10L * 1024 * 1024, AccessType.Public);
+        var request = new PrepareUploadRequest("big.png", "Large image", 10L * 1024 * 1024, AccessType.Public);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => sut.PrepareUploadAsync(request));
     }
@@ -63,7 +63,7 @@ public class FileUploadServiceTests
     public async Task PrepareUpload_ReturnsTokenForValidRequest()
     {
         var sut = Build();
-        var request = new PrepareUploadRequest("photo.png", 1024, AccessType.Public);
+        var request = new PrepareUploadRequest("photo.png", "Profile photo", 1024, AccessType.Public);
 
         var response = await sut.PrepareUploadAsync(request);
 
@@ -102,7 +102,7 @@ public class FileUploadServiceTests
         });
 
         // Name says png, content is actually a PDF — must be rejected.
-        await store.CreateAsync(new UploadTokenPayload("fake.png", 1024, AccessType.Public, null, null), 300, default);
+        await store.CreateAsync(new UploadTokenPayload("fake.png", "Fake image", null, 1024, AccessType.Public, null, null), 300, default);
 
         using var stream = new MemoryStream(new byte[] { 0x25, 0x50, 0x44, 0x46 });
 
@@ -128,7 +128,7 @@ public class FileUploadServiceTests
 
         var store = new FakeTokenStore();
         var sut = Build(store);
-        await store.CreateAsync(new UploadTokenPayload("photo.png", 8, AccessType.Public, null, null), 300, default);
+        await store.CreateAsync(new UploadTokenPayload("photo.png", "Profile photo", "Operator attachment", 8, AccessType.Public, null, null), 300, default);
 
         var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
         using var stream = new MemoryStream(png);
@@ -140,6 +140,8 @@ public class FileUploadServiceTests
         _repository.Verify(x => x.CreateAsync(It.IsAny<FileItem>(), It.IsAny<CancellationToken>()), Times.Once);
         _metadataCache.Verify(x => x.WarmAsync(It.IsAny<FileItem>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.Equal("/i/" + response.ShortCode, response.Url);
+        Assert.Equal("Profile photo", response.Title);
+        Assert.Equal("Operator attachment", response.Description);
     }
 }
 

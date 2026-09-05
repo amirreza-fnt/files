@@ -63,6 +63,8 @@ public sealed class FileUploadService : IFileUploadService
 
         var payload = new UploadTokenPayload(
             request.FileName,
+            request.Title.Trim(),
+            string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim(),
             request.SizeBytes,
             request.AccessType,
             request.GroupId,
@@ -117,7 +119,7 @@ public sealed class FileUploadService : IFileUploadService
 
         var fileId = Guid.NewGuid();
         var shortCode = await CreateUniqueShortCodeAsync(cancellationToken);
-        var friendlyName = await CreateUniqueFriendlyNameAsync(StripExtension(payload.FileName), shortCode, cancellationToken);
+        var friendlyName = await CreateUniqueFriendlyNameAsync(payload.Title, shortCode, cancellationToken);
 
         // Save physical bytes under a server-generated name (never the user-supplied name).
         buffer.Position = 0;
@@ -128,6 +130,8 @@ public sealed class FileUploadService : IFileUploadService
             fileId,
             friendlyName,
             shortCode,
+            payload.Title,
+            payload.Description,
             payload.FileName,
             detected.Value.Extension,
             detected.Value.MimeType,
@@ -151,6 +155,8 @@ public sealed class FileUploadService : IFileUploadService
             file.Id,
             file.ShortCode,
             file.FriendlyName,
+            file.Title,
+            file.Description,
             $"/i/{file.ShortCode}",
             file.OriginalFileName,
             file.SizeBytes);

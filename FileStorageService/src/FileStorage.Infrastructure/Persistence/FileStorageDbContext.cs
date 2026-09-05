@@ -40,6 +40,8 @@ public sealed class FileStorageDbContext : DbContext
             e.HasIndex(x => x.ShortCode).IsUnique();
 
             e.Property(x => x.OriginalFileName).HasMaxLength(255).IsRequired();
+            e.Property(x => x.Title).HasMaxLength(255).IsRequired();
+            e.Property(x => x.Description).HasMaxLength(2000);
             e.Property(x => x.Extension).HasMaxLength(16).IsRequired();
             e.Property(x => x.MimeType).HasMaxLength(100).IsRequired();
             e.Property(x => x.StoragePath).HasMaxLength(1024).IsRequired();

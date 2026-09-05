@@ -118,6 +118,8 @@ public sealed class FileMetadataCache : IFileMetadataCache
             file.Id,
             file.ShortCode,
             file.FriendlyName,
+            file.Title,
+            file.Description,
             file.OriginalFileName,
             file.Extension,
             file.MimeType,

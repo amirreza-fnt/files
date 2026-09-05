@@ -14,6 +14,8 @@ public class FileAuthorizationServiceTests
             Guid.NewGuid(),
             "code",
             "name",
+            "Test title",
+            "Test description",
             "file.pdf",
             "pdf",
             "application/pdf",

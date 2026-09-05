@@ -61,6 +61,8 @@ public sealed class CacheAsideIntegrationTests : IDisposable
             id,
             name,
             code,
+            "Test title",
+            "Test description",
             name + ".pdf",
             "pdf",
             "application/pdf",

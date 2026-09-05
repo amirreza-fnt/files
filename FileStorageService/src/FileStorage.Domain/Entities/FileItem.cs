@@ -12,6 +12,8 @@ public class FileItem
         Guid id,
         string friendlyName,
         string shortCode,
+        string title,
+        string? description,
         string originalFileName,
         string extension,
         string mimeType,
@@ -26,6 +28,8 @@ public class FileItem
         Id = id;
         FriendlyName = friendlyName;
         ShortCode = shortCode;
+        Title = title;
+        Description = description;
         OriginalFileName = originalFileName;
         Extension = extension;
         MimeType = mimeType;
@@ -41,6 +45,13 @@ public class FileItem
     public Guid Id { get; set; }
     public string FriendlyName { get; set; }
     public string ShortCode { get; set; }
+
+    /// <summary>Human-readable display title (SEO, categorization, operator labels).</summary>
+    public string Title { get; set; }
+
+    /// <summary>Optional longer description (SEO alt text, notes, categorization).</summary>
+    public string? Description { get; set; }
+
     public string OriginalFileName { get; set; }
     public string Extension { get; set; }
     public string MimeType { get; set; }
